@@ -1,0 +1,8 @@
+#!/bin/bash
+
+echo Start Install aliAsr required libs
+cd NlsSdkCpp2.0/lib/
+tar zxvf linux.tar.gz
+cd linux
+cp libnlsC* /usr/lib64
+echo Completed Install required libs
