@@ -99,21 +99,55 @@ void onTranscriptionCompleted(NlsEvent *str, void *param)
 // 一句话开始回调函数
 void onSentenceBegin(NlsEvent *str, void *param)
 {
+    switch_event_t *event = NULL;
+    switch_channel_t *channel = (switch_channel_t *)param;
     switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_NOTICE, " onSentenceBegin %d %s\n", str->getStausCode(), str->getTaskId());
+
+    if(switch_event_create(&event, SWITCH_EVENT_CUSTOM) == SWITCH_STATUS_SUCCESS)
+    {
+        event->subclass_name = strdup("aliasr::asr_start_talking");
+        switch_event_add_header_string(event, SWITCH_STACK_BOTTOM, "Event-Subclass", event->subclass_name);
+        switch_event_add_header_string(event, SWITCH_STACK_BOTTOM, "Unique-ID", switch_channel_get_uuid(channel));
+        switch_event_add_header_string(event, SWITCH_STACK_BOTTOM, "AliAsr-Channel", str->getTaskId());
+        switch_event_fire(event);
+    }
 }
 
 // 一句话结束回调函数
 void onSentenceEnd(NlsEvent *str, void *param)
 {
     switch_event_t *event = NULL;
+    switch_channel_t *channel = (switch_channel_t *)param;
     switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_NOTICE, " onSentenceEnd %s %f %s\n", str->getResult(), str->getSentenceConfidence(), str->getAllResponse());
+
+    if(switch_event_create(&event, SWITCH_EVENT_CUSTOM) == SWITCH_STATUS_SUCCESS)
+    {
+        event->subclass_name = strdup("aliasr::asr_stop_talking");
+        switch_event_add_header_string(event, SWITCH_STACK_BOTTOM, "Event-Subclass", event->subclass_name);
+        switch_event_add_header_string(event, SWITCH_STACK_BOTTOM, "Unique-ID", switch_channel_get_uuid(channel));
+        switch_event_add_header_string(event, SWITCH_STACK_BOTTOM, "AliAsr-Channel", str->getTaskId());
+        switch_event_add_header_string(event, SWITCH_STACK_BOTTOM, "AliAsr-Result", str->getResult());
+        switch_event_add_header_string(event, SWITCH_STACK_BOTTOM, "AliAsr-Sentence-Confidence", str->getSentenceConfidence());
+        switch_event_fire(event);
+    }
 }
 
 // 异常识别回调函数
 void onTaskFailed(NlsEvent *str, void *param)
 {
     switch_event_t *event = NULL;
+    switch_channel_t *channel = (switch_channel_t *)param;
     switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_WARNING, " onTaskFailed %s %s\n", str->getTaskId(), str->getErrorMessage());
+
+    if(switch_event_create(&event, SWITCH_EVENT_CUSTOM) == SWITCH_STATUS_SUCCESS)
+    {
+        event->subclass_name = strdup("aliasr::asr_task_failed");
+        switch_event_add_header_string(event, SWITCH_STACK_BOTTOM, "Event-Subclass", event->subclass_name);
+        switch_event_add_header_string(event, SWITCH_STACK_BOTTOM, "Unique-ID", switch_channel_get_uuid(channel));
+        switch_event_add_header_string(event, SWITCH_STACK_BOTTOM, "AliAsr-Channel", str->getTaskId());
+        switch_event_add_header_string(event, SWITCH_STACK_BOTTOM, "AliAsr-Result", str->getErrorMessage());
+        switch_event_fire(event);
+    }
 }
 
 // 识别通道关闭回调函数
