@@ -367,9 +367,6 @@ SWITCH_STANDARD_APP(start_ali_asr_function)
         pvt->aliAppKey = argv[0];
         pvt->aliAccessKeyID = argv[1];
         pvt->aliAccessKeySecret = argv[2];
-        //pvt->aliAppKey = "TYMHcrI1SraL2JaE";
-        //pvt->aliAccessKeyID = "LTAIvnwS4DzuqJ1r";
-        //pvt->aliAccessKeySecret = "HudYKDlUruRm1iqFk8BJSq0TqZ5Yxe";
         pvt->sample_rate = 8000;
 
         // 获取token
@@ -377,7 +374,6 @@ SWITCH_STANDARD_APP(start_ali_asr_function)
         if (g_token.empty() || g_expireTime - curTime < 10)
         {
             switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG, " the token will be expired, please generate new token by AccessKey-ID and AccessKey-Secret.\n");
-            //if (-1 == generate_token("LTAIvnwS4DzuqJ1r", "HudYKDlUruRm1iqFk8BJSq0TqZ5Yxe", &g_token, &g_expireTime))
             if (-1 == generate_token(pvt->aliAccessKeyID, pvt->aliAccessKeySecret, &g_token, &g_expireTime))
             {
                 switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR, " Failed to get token.\n");
